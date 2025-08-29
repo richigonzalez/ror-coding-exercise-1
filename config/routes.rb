@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :projects, only: %i[index show create] do
+  resources :projects, only: %i[index create] do
     resources :tasks, module: :projects, only: %i[index create]
     resource :summary, module: :projects, only: %i[show]
   end

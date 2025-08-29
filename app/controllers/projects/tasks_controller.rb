@@ -1,4 +1,4 @@
-module Project
+module Projects
   class TasksController < ApplicationController
     before_action :set_project
 

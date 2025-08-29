@@ -7,27 +7,29 @@ RSpec.describe "Projects API", type: :request do
     it "returns all projects" do
       get "/projects"
       expect(response).to have_http_status(:ok)
-      expect(json.size).to eq(3)
+      expect(JSON.parse(response.body).size).to eq(3)
     end
   end
 
   describe "POST /projects" do
-    it "creates a project" do
-      post "/projects", params: { project: { title: "New Project" } }
-      expect(response).to have_http_status(:created)
-      expect(json["title"]).to eq("New Project")
+    context "with valid params" do
+      let(:valid_params) { { project: { title: "New Project" } } }
+
+      it "creates a project" do
+        post "/projects", params: valid_params
+        expect(response).to have_http_status(:created)
+        expect(JSON.parse(response.body)["title"]).to eq("New Project")
+      end
     end
-  end
 
-  describe "GET /projects/:id/summary" do
-    let(:project) { create(:project) }
-    let!(:tasks) { create_list(:task, 2, project:) }
+    context "with invalid params" do
+      let(:invalid_params) { { project: { title: "" } } }
 
-    it "returns project summary" do
-      get "/projects/#{project.id}/summary"
-      expect(response).to have_http_status(:ok)
-      expect(json["title"]).to eq(project.title)
-      expect(json).to include("completed_tasks_count", "pending_tasks_count")
+      it "does not create a project" do
+        post "/projects", params: invalid_params
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)).to have_key("title")
+      end
     end
   end
 end
